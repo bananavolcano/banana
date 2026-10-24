@@ -37,7 +37,7 @@ async function loadClassifier(pipeline,env){
    });
   }catch(e){errors.push(host+': '+String(e.message||e).slice(0,120));}
  }
- throw Error('模型加载失败。已尝试官方 Hugging Face 与镜像源。可能是网络拦截、模型文件下载失败或手机内存不足。详情：'+errors.map(x=>x.replace('https://','')).join('；').slice(0,260));
+ throw Error('模型文件下载失败。该 CLIP 模型的量化主权重约 154 MB，手机首次下载需要稳定网络和足够存储空间。请查看各源错误详情；若是 Failed to fetch/Load failed，通常是网络或跨域连接被拦截。详情：'+errors.map(x=>x.replace('https://','')).join('；').slice(0,360));
 }
 self.onmessage=async e=>{
  try{
