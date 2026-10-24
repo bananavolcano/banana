@@ -104,7 +104,7 @@ function exportData(kind){let headers,rows,name;
  if(kind==='diaries'){name='日记';headers=['日期','内容','标签','保存时间'];rows=state.diaries.map(x=>[x.date,x.content,x.tags.join('、'),x.updatedAt]);}
  if(kind==='exercises'){name='运动记录';headers=['日期','类别','项目','分钟','消耗(kcal)','记录时体重(kg)','计算来源','体感'];rows=state.exerciseLogs.map(x=>[x.date,x.category,x.activity,x.minutes,x.kcal,x.weight,x.mode,x.note]);}
  if(!rows)return;download(`周期伴行-${name}-${today()}.csv`,C.csv(headers,rows),'text/csv;charset=utf-8');toast('已导出 '+name);}
-const CITY_PRESETS={上海:[31.23,121.47],北京:[39.9,116.4],广州:[23.13,113.26],深圳:[22.54,114.06],杭州:[30.27,120.16],成都:[30.57,104.07],武汉:[30.59,114.3],南京:[32.06,118.8],重庆:[29.56,106.55],西安:[34.34,108.94],天津:[39.14,117.2]};
+const CITY_PRESETS={长沙:[28.2282,112.9388],上海:[31.23,121.47],北京:[39.9,116.4],广州:[23.13,113.26],深圳:[22.54,114.06],杭州:[30.27,120.16],成都:[30.57,104.07],武汉:[30.59,114.3],南京:[32.06,118.8],重庆:[29.56,106.55],西安:[34.34,108.94],天津:[39.14,117.2]};
 let cityCandidates=[];
 function weatherName(code,wind){if([71,73,75,77,85,86].includes(code))return '下雪';if([51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99].includes(code))return '下雨';if(wind>=38)return '大风';if(code<=1)return '晴朗';if(code===2)return '多云';return '阴天';}
 async function fetchJson(url){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);try{const res=await fetch(url,{signal:controller.signal,referrerPolicy:'no-referrer'});if(!res.ok)throw Error('天气服务暂时不可用');return await res.json();}finally{clearTimeout(timer);}}
