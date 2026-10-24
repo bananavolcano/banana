@@ -1,0 +1,16 @@
+{
+  "name": "周期伴行 · 每一天，都关照自己",
+  "short_name": "周期伴行",
+  "description": "本地保存的周期、饮食运动、日记与衣橱助手",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#faf6f5",
+  "theme_color": "#faf6f5",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
