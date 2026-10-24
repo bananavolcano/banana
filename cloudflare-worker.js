@@ -19,7 +19,7 @@ export default {
    if(bytes.byteLength>5*1024*1024) return Response.json({error:"Image too large; please choose a smaller photo."},{status:413,headers:cors()});
    const foods=Array.isArray(body.foods)?body.foods.filter(x=>x&&typeof x.id==="string"&&typeof x.label==="string").slice(0,250):[];
    if(!foods.length) return Response.json({error:"Food list missing."},{status:400,headers:cors()});
-   const labels=foods.map(x=>x.label).join("、");
+   const labels=foods.map(x=>x.name||x.label).join("、");
    const result=await env.AI.run("@cf/llava-hf/llava-1.5-7b-hf",{
     image:bytes,
     prompt:"你是食物照片分类助手。请判断照片中最主要、最清楚的一种食物。只能从以下食物名称中选择一个，并且只输出该名称，不要解释。如果没有合适项，输出 UNKNOWN。候选名称："+labels,
