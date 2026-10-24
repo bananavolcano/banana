@@ -21,7 +21,7 @@ export default {
    if(!foods.length) return Response.json({error:"Food list missing."},{status:400,headers:cors()});
    const labels=foods.map(x=>x.name||x.label).join("、");
    const result=await env.AI.run("@cf/llava-hf/llava-1.5-7b-hf",{
-    image:bytes,
+    image:match[1],
     prompt:"你是食物照片分类助手。请判断照片中最主要、最清楚的一种食物。只能从以下食物名称中选择一个，并且只输出该名称，不要解释。如果没有合适项，输出 UNKNOWN。候选名称："+labels,
     max_tokens:48
    });
