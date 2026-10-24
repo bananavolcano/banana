@@ -26,8 +26,8 @@ export default {
     max_tokens:48
    });
    const answer=String(result?.description||result?.response||result?.text||"").trim().replace(/^[\s"'「『]+|[\s"'」』。,.]+$/g,"");
-   const exact=foods.find(f=>f.label.toLowerCase()===answer.toLowerCase());
-   const found=exact||foods.find(f=>answer.includes(f.label)||f.label.includes(answer)&&answer.length>1);
+   const exact=foods.find(f=>(f.name||f.label).toLowerCase()===answer.toLowerCase());
+   const found=exact||foods.find(f=>answer.includes(f.name||f.label)||(f.name||f.label).includes(answer)&&answer.length>1);
    const results=found?[{id:found.id,label:found.label,score:0.72}]:[];
    return Response.json({results,answer,source:"cloudflare-workers-ai"},{headers:cors({"Cache-Control":"no-store"})});
   } catch(e) {
