@@ -41,15 +41,26 @@ async function loadClassifier(pipeline,env){
 }
 async function recognizeCloud(endpoint,image,foods){
  self.postMessage({type:'progress',message:'正在通过云端 AI 分析照片…照片将发送到你配置的服务。'});
- const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image,foods})});
- const body=await res.json().catch(()=>({}));
- if(!res.ok)throw Error(body.error||('云端 AI 请求失败（HTTP '+res.status+'）'));
- if(!Array.isArray(body.results))throw Error(body.error||'云端服务返回格式不正确');
+ let url;
+ try{url=new URL(endpoint);if(url.protocol!=='https:')throw Error('云端识别地址必须使用 HTTPS');}
+ catch(e){throw Error('云端识别地址无效：'+String(e.message||e));}
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),60000);
+ let res;
+ try{
+  res=await fetch(url.href,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image,foods}),signal:controller.signal,cache:'no-store'});
+ }catch(e){
+  if(e.name==='AbortError')throw Error('云端 AI 请求超时（60 秒）。请检查 Worker 日志、网络或 VPN。');
+  throw Error('无法连接 Cloudflare Worker（'+url.hostname+'）。浏览器未收到 HTTP 响应，常见原因是 CORS/OPTIONS 预检失败、网络/VPN 拦截或 Worker 连接中断。原始错误：'+String(e.message||e).slice(0,100));
+ }finally{clearTimeout(timer);}
+ const body=await res.json().catch(()=>null);
+ if(!res.ok)throw Error(body?.error||('云端 AI 请求失败（HTTP '+res.status+'）'));
+ if(!body||!Array.isArray(body.results))throw Error(body?.error||'云端服务返回格式不正确，请检查 Worker 返回的 JSON。');
  self.postMessage({type:'result',results:body.results});
 }
 self.onmessage=async e=>{
+ const cloudEndpoint=e.data?.cloudEndpoint;
  try{
-  const {image,foods,cloudEndpoint}=e.data;
+  const {image,foods}=e.data;
   if(cloudEndpoint){
    await recognizeCloud(cloudEndpoint,image,foods);
    return;
@@ -66,6 +77,6 @@ self.onmessage=async e=>{
   self.postMessage({type:'result',results:results.map(r=>({id:foods.find(f=>f.label===r.label)?.id||null,label:r.label,score:r.score}))});
  }catch(error){
   classifier=null;
-  self.postMessage({type:'error',message:'本地 AI 识别失败：'+String(error.message||error).slice(0,300)});
+  self.postMessage({type:'error',message:(cloudEndpoint?'云端 AI 识别失败：':'本地 AI 识别失败：')+String(error.message||error).slice(0,420)});
  }
 };
