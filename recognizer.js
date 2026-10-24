@@ -21,7 +21,7 @@ async function loadClassifier(pipeline,env){
  env.useBrowserCache=true;
  env.backends.onnx.wasm.numThreads=1;
  /* Transformers.js v2 model URL: host/model/resolve/revision/file */
- env.remotePathTemplate='{model}/resolve/{revision}/{file}';
+ env.remotePathTemplate='{model}/resolve/{revision}/';
  const hosts=['https://huggingface.co','https://hf-mirror.com'];
  const errors=[];
  for(const host of hosts){
