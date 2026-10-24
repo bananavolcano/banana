@@ -39,14 +39,26 @@ async function loadClassifier(pipeline,env){
  }
  throw Error('模型文件下载失败。该 CLIP 模型的量化主权重约 154 MB，手机首次下载需要稳定网络和足够存储空间。请查看各源错误详情；若是 Failed to fetch/Load failed，通常是网络或跨域连接被拦截。详情：'+errors.map(x=>x.replace('https://','')).join('；').slice(0,360));
 }
+async function recognizeCloud(endpoint,image,foods){
+ self.postMessage({type:'progress',message:'正在通过云端 AI 分析照片…照片将发送到你配置的服务。'});
+ const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image,foods})});
+ const body=await res.json().catch(()=>({}));
+ if(!res.ok)throw Error(body.error||('云端 AI 请求失败（HTTP '+res.status+'）'));
+ if(!Array.isArray(body.results))throw Error(body.error||'云端服务返回格式不正确');
+ self.postMessage({type:'result',results:body.results});
+}
 self.onmessage=async e=>{
  try{
+  const {image,foods,cloudEndpoint}=e.data;
+  if(cloudEndpoint){
+   await recognizeCloud(cloudEndpoint,image,foods);
+   return;
+  }
   if(!classifier){
    self.postMessage({type:'progress',message:'正在加载识别运行库…'});
    const {pipeline,env}=await loadLib();
    classifier=await loadClassifier(pipeline,env);
   }
-  const {image,foods}=e.data;
   const extras=['not food, a person or an object','an empty plate','a plate of multiple mixed dishes'];
   const labels=[...foods.map(f=>f.label),...extras];
   self.postMessage({type:'progress',message:'模型已加载，正在本机分析照片…'});
