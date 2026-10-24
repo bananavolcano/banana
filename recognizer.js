@@ -17,9 +17,12 @@ async function loadLib(){
 }
 async function loadClassifier(pipeline,env){
  env.allowLocalModels=false;
+ env.allowRemoteModels=true;
  env.useBrowserCache=true;
  env.backends.onnx.wasm.numThreads=1;
- const hosts=['https://hf-mirror.com','https://huggingface.co'];
+ /* Transformers.js v2 model URL: host/model/resolve/revision/file */
+ env.remotePathTemplate='{model}/resolve/{revision}/{file}';
+ const hosts=['https://huggingface.co','https://hf-mirror.com'];
  const errors=[];
  for(const host of hosts){
   try{
@@ -34,7 +37,7 @@ async function loadClassifier(pipeline,env){
    });
   }catch(e){errors.push(host+': '+String(e.message||e).slice(0,120));}
  }
- throw Error('模型权重下载失败，已尝试镜像和官方源。请检查网络/浏览器内存后重试。详情：'+errors.map(x=>x.replace('https://','')).join('；').slice(0,220));
+ throw Error('模型加载失败。已尝试官方 Hugging Face 与镜像源。可能是网络拦截、模型文件下载失败或手机内存不足。详情：'+errors.map(x=>x.replace('https://','')).join('；').slice(0,260));
 }
 self.onmessage=async e=>{
  try{
